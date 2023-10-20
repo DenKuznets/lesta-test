@@ -11,6 +11,8 @@ import {
 import { PaginatedItems } from "./paginatedItems";
 import { Ship } from "@/types";
 import ShipCard from "@/components/ShipCard/ShipCard";
+import { useEffect, useState } from "react";
+import DropDown from "@/components/DropDown";
 
 const client = new ApolloClient({
     // uri: "https://flyby-router-demo.herokuapp.com/",
@@ -50,26 +52,39 @@ const GET_SHIPS = gql`
 `;
 
 const ItemsComponent = () => {
+    const [filteredShipItems, setFilteredShipItems] = useState();
+    const [levelFilter, setLevelFilter] = useState();
+    const [typeFilter, setTypeFilter] = useState();
+    const [nationFilter, setNationFilter] = useState();
+
     const { loading, error, data } = useQuery(GET_SHIPS);
-    const levelFilter: Set<string> = new Set()
-    const typeFilter: Set<string> = new Set()
-    const nationFilter: Set<string> = new Set()
-    
+    const levelFilters: Set<string> = new Set();
+    const typeFilters: Set<string> = new Set();
+    const nationFilters: Set<string> = new Set();
+
     if (loading)
-    return <span className="loading loading-spinner loading-lg"></span>;
+        return <span className="loading loading-spinner loading-lg"></span>;
     if (error) return <p>Error : {error.message}</p>;
+
     const allShipItems = data.vehicles;
     data &&
         data.vehicles.map((ship: Ship) => {
-            // shipCards.push(<ShipCard key={ship.title} ship={ship} />)
-            levelFilter.add(ship.level)
-            typeFilter.add(ship.type.name)
-            nationFilter.add(ship.nation.name)
+            levelFilters.add(ship.level);
+            typeFilters.add(ship.type.name);
+            nationFilters.add(ship.nation.name);
         });
-    console.log(levelFilter);
-    console.log(typeFilter);
-    console.log(nationFilter);
-    return <PaginatedItems items={allShipItems} itemsPerPage={3} />;
+    console.log(levelFilters);
+    console.log(typeFilters);
+    console.log(nationFilters);
+    return (
+        <div>
+            <div>
+                Filter by:
+                <DropDown items={Array.from(levelFilters)} >Level</DropDown>
+            </div>
+            <PaginatedItems items={allShipItems} itemsPerPage={3} />
+        </div>
+    );
 };
 
 export default function Home() {

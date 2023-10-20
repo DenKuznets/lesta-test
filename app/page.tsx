@@ -51,20 +51,25 @@ const GET_SHIPS = gql`
 
 const ItemsComponent = () => {
     const { loading, error, data } = useQuery(GET_SHIPS);
-    const levelFilter : string[] = []
+    const levelFilter: Set<string> = new Set()
+    const typeFilter: Set<string> = new Set()
+    const nationFilter: Set<string> = new Set()
     
     if (loading)
     return <span className="loading loading-spinner loading-lg"></span>;
     if (error) return <p>Error : {error.message}</p>;
-
+    const allShipItems = data.vehicles;
     data &&
         data.vehicles.map((ship: Ship) => {
             // shipCards.push(<ShipCard key={ship.title} ship={ship} />)
+            levelFilter.add(ship.level)
+            typeFilter.add(ship.type.name)
+            nationFilter.add(ship.nation.name)
         });
-    
-    return (
-        <PaginatedItems items={data.vehicles} itemsPerPage={3} />
-    )
+    console.log(levelFilter);
+    console.log(typeFilter);
+    console.log(nationFilter);
+    return <PaginatedItems items={allShipItems} itemsPerPage={3} />;
 };
 
 export default function Home() {

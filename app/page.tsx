@@ -53,7 +53,7 @@ const GET_SHIPS = gql`
 
 const ItemsComponent = () => {
     const [filteredShipItems, setFilteredShipItems] = useState();
-    const [levelFilter, setLevelFilter] = useState();
+    const [levelFilter, setLevelFilter] = useState<string>();
     const [typeFilter, setTypeFilter] = useState();
     const [nationFilter, setNationFilter] = useState();
 
@@ -80,7 +80,7 @@ const ItemsComponent = () => {
         <div>
             <div>
                 Filter by:
-                <DropDown items={Array.from(levelFilters)} >Level</DropDown>
+                <DropDown handleItemClick={(item) => setLevelFilter(item)} items={Array.from(levelFilters)} >Level</DropDown>
             </div>
             <PaginatedItems items={allShipItems} itemsPerPage={3} />
         </div>

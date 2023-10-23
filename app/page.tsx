@@ -1,117 +1,17 @@
 "use client";
 
-import Image from "next/image";
-import {
-    ApolloClient,
-    InMemoryCache,
-    ApolloProvider,
-    gql,
-    useQuery,
-} from "@apollo/client";
-import { PaginatedItems } from "./paginatedItems";
-import { Ship } from "@/types";
-import ShipCard from "@/components/ShipCard/ShipCard";
-import { useEffect, useState } from "react";
-import DropDown from "@/components/DropDown";
-import { filterShipsByLevel } from "@/utils/filterShips";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { ItemsComponent } from "@/components/ItemsComponent";
 
 const client = new ApolloClient({
-    // uri: "https://flyby-router-demo.herokuapp.com/",
     uri: "https://vortex.korabli.su/api/graphql/glossary/",
     cache: new InMemoryCache(),
 });
-
-const GET_SHIPS = gql`
-    query GetLocations {
-        vehicles {
-            title
-            description
-            icons {
-                large
-                medium
-            }
-            level
-            type {
-                name
-                title
-                icons {
-                    default
-                }
-            }
-            nation {
-                name
-                title
-                color
-                icons {
-                    small
-                    medium
-                    large
-                }
-            }
-        }
-    }
-`;
-
-const ItemsComponent = () => {
-    const [shipItems, setShipItems] = useState<Ship[]>();
-    const [levelFilter, setLevelFilter] = useState("");
-    const [typeFilter, setTypeFilter] = useState("");
-    const [nationFilter, setNationFilter] = useState("");
-
-    const { loading, error, data } = useQuery(GET_SHIPS);
-    const levelFilters: Set<string> = new Set();
-    const typeFilters: Set<string> = new Set();
-    const nationFilters: Set<string> = new Set();
-
-    useEffect(() => {
-        if (data) {
-            setShipItems(data.vehicles);
-            data.vehicles.map((ship: Ship) => {
-                levelFilters.add(ship.level);
-                typeFilters.add(ship.type.name);
-                nationFilters.add(ship.nation.name);
-            });
-            
-      }
-    }, [data])
-    
-
-    useEffect(() => {
-        switch (true) {
-            case levelFilter !== null:
-                shipItems && setShipItems(filterShipsByLevel(shipItems));
-                setLevelFilter("");
-                break;
-
-            default:
-                break;
-        }
-    }, [shipItems, levelFilter]);
-    
-
-    if (loading)
-        return <span className="loading loading-spinner loading-lg"></span>;
-    if (error) return <p>Error : {error.message}</p>;
-    // console.log(levelFilters);
-    // console.log(typeFilters);
-    // console.log(nationFilters);
-    return (
-        <div>
-            <div>
-                Filter by:
-                <DropDown handleClick={(item) => setLevelFilter(item)} items={Array.from(levelFilters)} >Level</DropDown>
-            </div>
-            {shipItems && <PaginatedItems items={shipItems} itemsPerPage={3} />}
-        </div>
-    );
-};
 
 export default function Home() {
     return (
         <ApolloProvider client={client}>
             <main className="flex min-h-screen flex-wrap items-center justify-between p-4">
-                {/* <DisplayShips /> */}
-
                 <ItemsComponent />
             </main>
         </ApolloProvider>

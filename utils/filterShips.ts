@@ -1,15 +1,22 @@
 import { Ship } from "@/types";
 
 export const filterShipsByLevel = (
-    levelFilter: string,
+    filter: string,
     shipItems: Ship[]
 ): Ship[] => {
-    return shipItems.filter((ship) => ship.level === levelFilter);
+    return shipItems.filter((ship) => ship.level === filter);
 };
 
 export const filterShipsByType = (
-    typeFilter: string,
+    filter: string,
     shipItems: Ship[]
 ): Ship[] => {
-    return shipItems.filter((ship) => ship.type.name === typeFilter);
+    return shipItems.filter((ship) => ship.type.name === filter);
+};
+
+export const filterShipsByNation = (
+    filter: string,
+    shipItems: Ship[]
+): Ship[] => {
+    return shipItems.filter((ship) => ship.nation.name === filter);
 };

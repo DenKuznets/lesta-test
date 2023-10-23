@@ -13,6 +13,7 @@ import { Ship } from "@/types";
 import ShipCard from "@/components/ShipCard/ShipCard";
 import { useEffect, useState } from "react";
 import DropDown from "@/components/DropDown";
+import { filterShipsByLevel } from "@/utils/filterShips";
 
 const client = new ApolloClient({
     // uri: "https://flyby-router-demo.herokuapp.com/",
@@ -52,37 +53,55 @@ const GET_SHIPS = gql`
 `;
 
 const ItemsComponent = () => {
-    const [filteredShipItems, setFilteredShipItems] = useState();
-    const [levelFilter, setLevelFilter] = useState<string>();
-    const [typeFilter, setTypeFilter] = useState();
-    const [nationFilter, setNationFilter] = useState();
+    const [shipItems, setShipItems] = useState<Ship[]>();
+    const [levelFilter, setLevelFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
+    const [nationFilter, setNationFilter] = useState("");
 
     const { loading, error, data } = useQuery(GET_SHIPS);
     const levelFilters: Set<string> = new Set();
     const typeFilters: Set<string> = new Set();
     const nationFilters: Set<string> = new Set();
 
+    useEffect(() => {
+        if (data) {
+            setShipItems(data.vehicles);
+            data.vehicles.map((ship: Ship) => {
+                levelFilters.add(ship.level);
+                typeFilters.add(ship.type.name);
+                nationFilters.add(ship.nation.name);
+            });
+            
+      }
+    }, [data])
+    
+
+    useEffect(() => {
+        switch (true) {
+            case levelFilter !== null:
+                shipItems && setShipItems(filterShipsByLevel(shipItems));
+                setLevelFilter("");
+                break;
+
+            default:
+                break;
+        }
+    }, [shipItems, levelFilter]);
+    
+
     if (loading)
         return <span className="loading loading-spinner loading-lg"></span>;
     if (error) return <p>Error : {error.message}</p>;
-
-    const allShipItems = data.vehicles;
-    data &&
-        data.vehicles.map((ship: Ship) => {
-            levelFilters.add(ship.level);
-            typeFilters.add(ship.type.name);
-            nationFilters.add(ship.nation.name);
-        });
-    console.log(levelFilters);
-    console.log(typeFilters);
-    console.log(nationFilters);
+    // console.log(levelFilters);
+    // console.log(typeFilters);
+    // console.log(nationFilters);
     return (
         <div>
             <div>
                 Filter by:
                 <DropDown handleClick={(item) => setLevelFilter(item)} items={Array.from(levelFilters)} >Level</DropDown>
             </div>
-            <PaginatedItems items={allShipItems} itemsPerPage={3} />
+            {shipItems && <PaginatedItems items={shipItems} itemsPerPage={3} />}
         </div>
     );
 };

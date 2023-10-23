@@ -2,37 +2,32 @@
 import React, { useRef, useState } from "react";
 
 interface DropDownProps extends React.HTMLAttributes<HTMLDivElement> {
-    items: string[];
-    handleClick?: (item: string) => void;
+    filters: string[];
+    handleClick?: (filter: string) => void;
 }
 
 const DropDown = ({
     handleClick: handleClick,
-    items,
-    children,
+    filters: items,
+    children
 }: DropDownProps) => {
     const detailsRef = useRef<HTMLDetailsElement>(null);
-
-    const handleItemClick = (item: string) => {
-        console.log('object');
-        handleClick && handleClick(item);
+    const handleItemClick = (filter: string) => {
+        handleClick && handleClick(filter);
         detailsRef.current && detailsRef.current.removeAttribute("open");
-        
     };
 
-    const listItems = items.map((item) => (
-        <li key={item}>
-            <a onClick={() => handleItemClick(item)}>{item}</a>
+    const filtersList = items.map((filter) => (
+        <li key={filter}>
+            <a onClick={() => handleItemClick(filter)}>{filter}</a>
         </li>
     ));
 
     return (
-        <details ref={detailsRef} className="dropdown mb-32">
-            <summary className="m-1 btn">
-                {children}
-            </summary>
+        <details ref={detailsRef} className="dropdown">
+            <summary className="m-1 btn">{ children }</summary>
             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-                {listItems}
+                {filtersList}
             </ul>
         </details>
     );

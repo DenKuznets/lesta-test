@@ -8,94 +8,79 @@ import { getLevelFilters, getTypeFilters } from "@/utils/getFilters";
 import { filterShipsByLevel, filterShipsByType } from "@/utils/filterShips";
 
 export const ItemsComponent = () => {
-    const [shipItems, setShipItems] = useState<Ship[]>();
-    const [currentFilter, setCurrentFilter] = useState<string | null>(null);
-    const [filteredShipItems, setFilteredShipItems] = useState<Ship[] | null>(
-        null
-    );
-    const [levelFilter, setLevelFilter] = useState<string | null>(null);
-    const [typeFilter, setTypeFilter] = useState<string | null>(null);
+    const [ships, setShips] = useState<Ship[]>();
+    const [filteredShips, setFilteredShips] = useState<Ship[] | null>(null);
+    const [levelFilter, setLevelFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
+    const resetFilters = () => {
+        setFilteredShips(null);
+        setLevelFilter("");
+        setTypeFilter("");
+    };
     // const [nationFilter, setNationFilter] = useState("");
 
     const { loading, error, data } = useQuery(getShips);
     const levelFilters = useMemo<Set<string>>(
-        () => (shipItems ? getLevelFilters(shipItems) : new Set()),
-        [shipItems]
+        () => (ships ? getLevelFilters(ships) : new Set()),
+        [ships]
     );
     const typeFilters = useMemo<Set<string>>(
-        () => (shipItems ? getTypeFilters(shipItems) : new Set()),
-        [shipItems]
+        () => (ships ? getTypeFilters(ships) : new Set()),
+        [ships]
     );
-    // const typeFilters: Set<string> = new Set();
     // const nationFilters: Set<string> = new Set();
 
     useEffect(() => {
         if (data) {
             const ships = data.vehicles;
-            setShipItems(ships);
+            setShips(ships);
         }
     }, [data]);
-
-    useEffect(() => {
-        switch (true) {
-            case !!levelFilter && !!shipItems:
-                setFilteredShipItems(
-                    filterShipsByLevel(levelFilter, shipItems)
-                );
-                setCurrentFilter(levelFilter);
-                // setLevelFilter(null);
-                break;
-            case !!typeFilter && !!shipItems:
-                setFilteredShipItems(filterShipsByType(typeFilter, shipItems));
-                setCurrentFilter(typeFilter);
-                // setLevelFilter(null);
-                break;
-
-            default:
-                break;
-        }
-    }, [levelFilter, shipItems, typeFilter]);
 
     if (loading)
         return <span className="loading loading-spinner loading-lg"></span>;
     if (error) return <p>Error : {error.message}</p>;
 
-    // console.log(data);
+    console.log(data);
     return (
         <div>
             <div>
                 Filter by:
                 <DropDown
-                    handleClick={(item) => setLevelFilter(item)}
-                    items={Array.from(levelFilters)}
+                    handleClick={(filter) => {
+                        if (filter === levelFilter) return null;
+
+                        setLevelFilter(filter);
+                        setTypeFilter("");
+                        filter &&
+                            ships &&
+                            setFilteredShips(filterShipsByLevel(filter, ships));
+                    }}
+                    filters={Array.from(levelFilters)}
                 >
-                    {`Level${
-                        levelFilter && currentFilter ? `: ${currentFilter}` : ""
-                    }`}
+                    Level {levelFilter}
                 </DropDown>
                 <DropDown
-                    handleClick={(item) => setLevelFilter(item)}
-                    items={Array.from(typeFilters)}
-                >
-                    {`Type${
-                        typeFilter && currentFilter ? `: ${currentFilter}` : ""
-                    }`}
-                </DropDown>
-                <button
-                    onClick={() => {
-                        setFilteredShipItems(null);
-                        setCurrentFilter(null);
-                        setLevelFilter(null);
-                        setTypeFilter(null);
+                    handleClick={(filter) => {
+                        if (filter === typeFilter) return null;
+
+                        setTypeFilter(filter);
+                        setLevelFilter("");
+                        filter &&
+                            ships &&
+                            setFilteredShips(filterShipsByType(filter, ships));
                     }}
-                    className="btn"
+                    filters={Array.from(typeFilters)}
                 >
+                    Type {typeFilter}
+                </DropDown>
+                <button onClick={resetFilters} className="btn">
                     reset filter
                 </button>
             </div>
-            {shipItems && (
+            {ships && (
                 <PaginatedItems
-                    items={filteredShipItems ? filteredShipItems : shipItems}
+                    items={filteredShips ? filteredShips : ships}
                     itemsPerPage={3}
                 />
             )}

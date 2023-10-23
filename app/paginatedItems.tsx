@@ -3,20 +3,24 @@ import { Ship } from "@/types";
 import { useState } from "react";
 import ReactPaginate from "react-paginate";
 
-
-function Items({ currentItems }: { currentItems: Ship[] }) {   
-    
+function Items({ currentItems }: { currentItems: Ship[] }) {
     return (
         <div className="flex">
             {currentItems &&
                 currentItems.map((ship: Ship) => (
                     <ShipCard key={ship.title} ship={ship} />
-                    ))}
+                ))}
         </div>
     );
 }
 
-export function PaginatedItems({items, itemsPerPage }: {items: Ship[], itemsPerPage: number }) {
+export function PaginatedItems({
+    items,
+    itemsPerPage,
+}: {
+    items: Ship[];
+    itemsPerPage: number;
+}) {
     const [itemOffset, setItemOffset] = useState(0);
     // const items = data.vehicles;
     const endOffset = itemOffset + itemsPerPage;
@@ -35,7 +39,6 @@ export function PaginatedItems({items, itemsPerPage }: {items: Ship[], itemsPerP
 
     return (
         <>
-            <Items currentItems={currentItems} />
             <ReactPaginate
                 className="flex mx-auto mt-4 gap-2 [&>ul]:flex [&>ul]:gap-2 [&_.selected]:bg-orange-500 [&_.selected]:text-zinc-800 [&_li>a]:p-1 [&_li]:border [&_li]:border-r-amber-500"
                 breakLabel="..."
@@ -46,6 +49,7 @@ export function PaginatedItems({items, itemsPerPage }: {items: Ship[], itemsPerP
                 previousLabel="< previous"
                 renderOnZeroPageCount={null}
             />
+            <Items currentItems={currentItems} />
         </>
     );
 }

@@ -44,8 +44,7 @@ export const ItemsComponent = () => {
 
     useEffect(() => {
         if (data) {
-            const ships = data.vehicles;
-            setShips(ships);
+            setShips(data.vehicles);
         }
     }, [data]);
 

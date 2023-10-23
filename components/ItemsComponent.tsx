@@ -54,7 +54,7 @@ export const ItemsComponent = () => {
     if (error) return <p>Error : {error.message}</p>;
 
     return (
-        <div>
+        <div className="flex flex-col">
             <div>
                 Filter by:
                 <DropDown

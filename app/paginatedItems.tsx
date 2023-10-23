@@ -5,7 +5,7 @@ import ReactPaginate from "react-paginate";
 
 function Items({ currentItems }: { currentItems: Ship[] }) {
     return (
-        <div className="flex">
+        <div className="flex flex-wrap">
             {currentItems &&
                 currentItems.map((ship: Ship) => (
                     <ShipCard key={ship.title} ship={ship} />
@@ -22,18 +22,13 @@ export function PaginatedItems({
     itemsPerPage: number;
 }) {
     const [itemOffset, setItemOffset] = useState(0);
-    // const items = data.vehicles;
     const endOffset = itemOffset + itemsPerPage;
-    console.log(`Loading items from ${itemOffset} to ${endOffset}`);
     const currentItems = items.slice(itemOffset, endOffset);
     const pageCount = Math.ceil(items.length / itemsPerPage);
 
     // Invoke when user click to request another page.
     const handlePageClick = (event: { selected: number }) => {
         const newOffset = (event.selected * itemsPerPage) % items.length;
-        console.log(
-            `User requested page number ${event.selected}, which is offset ${newOffset}`
-        );
         setItemOffset(newOffset);
     };
 

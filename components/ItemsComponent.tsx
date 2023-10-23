@@ -1,7 +1,7 @@
 import { Ship } from "@/types";
 import { getShips } from "@/utils/getShips";
 import { useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DropDown from "./DropDown";
 import { PaginatedItems } from "@/app/paginatedItems";
 
@@ -12,7 +12,7 @@ export const ItemsComponent = () => {
     const [nationFilter, setNationFilter] = useState("");
 
     const { loading, error, data } = useQuery(getShips);
-    const levelFilters: Set<string> = new Set();
+    const levelFilters : Set<string> = useMemo(() => new Set(), [])     
     const typeFilters: Set<string> = new Set();
     const nationFilters: Set<string> = new Set();
 
@@ -20,13 +20,13 @@ export const ItemsComponent = () => {
         if (data) {
             const ships = data.vehicles;
             setShipItems(ships);
-            // data.vehicles.map((ship: Ship) => {
-            //     levelFilters.add(ship.level);
-            //     typeFilters.add(ship.type.name);
-            //     nationFilters.add(ship.nation.name);
-            // });
+            ships.map((ship: Ship) => {
+                levelFilters.add(ship.level);
+                // typeFilters.add(ship.type.name);
+                // nationFilters.add(ship.nation.name);
+            });
         }
-    }, [data]);
+    }, [data, levelFilters]);
 
     // useEffect(() => {
     //     switch (true) {

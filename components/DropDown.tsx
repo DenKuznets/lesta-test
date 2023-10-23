@@ -1,21 +1,28 @@
-import React from "react";
+"use client";
+import React, { useRef } from "react";
 
 interface DropDownProps extends React.HTMLAttributes<HTMLDivElement> {
     items: string[];
-    handleItemClick?: (item: string) => void;
+    handleClick?: (item: string) => void;
 }
 
-const DropDown = ({ handleItemClick, items, children }: DropDownProps) => {
-    
+const DropDown = ({
+    handleClick: handleClick,
+    items,
+    children,
+}: DropDownProps) => {
+    const detailsRef = useRef<HTMLDetailsElement>(null);
+    const handleItemClick = (item: string) => {
+        handleClick && handleClick(item);
+        detailsRef.current && detailsRef.current.removeAttribute("open");
+    };
     const listItems = items.map((item) => (
         <li key={item}>
-            <a onClick={() => handleItemClick && handleItemClick(item)}>
-                {item}
-            </a>
+            <a onClick={() => handleClick && handleItemClick(item)}>{item}</a>
         </li>
     ));
     return (
-        <details className="dropdown mb-32">
+        <details ref={detailsRef} className="dropdown mb-32">
             <summary className="m-1 btn">{children}</summary>
             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
                 {listItems}

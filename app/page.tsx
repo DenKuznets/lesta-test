@@ -80,7 +80,7 @@ const ItemsComponent = () => {
         <div>
             <div>
                 Filter by:
-                <DropDown handleItemClick={(item) => setLevelFilter(item)} items={Array.from(levelFilters)} >Level</DropDown>
+                <DropDown handleClick={(item) => setLevelFilter(item)} items={Array.from(levelFilters)} >Level</DropDown>
             </div>
             <PaginatedItems items={allShipItems} itemsPerPage={3} />
         </div>

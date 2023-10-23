@@ -31,7 +31,7 @@ const DropDown = ({
         <details ref={detailsRef} className="dropdown mb-32">
             <summary className="m-1 btn">
                 {children}
-                {currentFilter && `:${currentFilter}`}
+                {currentFilter && `: ${currentFilter}`}
             </summary>
             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
                 {listItems}

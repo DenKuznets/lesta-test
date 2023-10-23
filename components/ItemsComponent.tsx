@@ -4,47 +4,49 @@ import { useQuery } from "@apollo/client";
 import { useEffect, useMemo, useState } from "react";
 import DropDown from "./DropDown";
 import { PaginatedItems } from "@/app/paginatedItems";
+import { getLevelFilters } from "@/utils/getFilters";
+import { filterShipsByLevel } from "@/utils/filterShips";
 
 export const ItemsComponent = () => {
     const [shipItems, setShipItems] = useState<Ship[]>();
-    const [levelFilter, setLevelFilter] = useState("");
-    const [typeFilter, setTypeFilter] = useState("");
-    const [nationFilter, setNationFilter] = useState("");
+    const [filteredShipItems, setFilteredShipItems] = useState<Ship[]>();
+    const [levelFilter, setLevelFilter] = useState<string | null>(null);
+    // const [typeFilter, setTypeFilter] = useState("");
+    // const [nationFilter, setNationFilter] = useState("");
 
     const { loading, error, data } = useQuery(getShips);
-    const levelFilters : Set<string> = useMemo(() => new Set(), [])     
-    const typeFilters: Set<string> = new Set();
-    const nationFilters: Set<string> = new Set();
+    const levelFilters = useMemo<Set<string>>(
+        () => (shipItems ? getLevelFilters(shipItems) : new Set()),
+        [shipItems]
+    );
+    // const typeFilters: Set<string> = new Set();
+    // const nationFilters: Set<string> = new Set();
 
     useEffect(() => {
         if (data) {
             const ships = data.vehicles;
             setShipItems(ships);
-            ships.map((ship: Ship) => {
-                levelFilters.add(ship.level);
-                // typeFilters.add(ship.type.name);
-                // nationFilters.add(ship.nation.name);
-            });
         }
-    }, [data, levelFilters]);
+    }, [data]);
 
-    // useEffect(() => {
-    //     switch (true) {
-    //         case levelFilter !== "":
-    //             shipItems && setShipItems(filterShipsByLevel(shipItems));
-    //             setLevelFilter("");
-    //             break;
+    useEffect(() => {
+        switch (true) {
+            case !!levelFilter && !!shipItems:
+                setFilteredShipItems(
+                    filterShipsByLevel(levelFilter, shipItems)
+                );
+                setLevelFilter(null);
+                break;
 
-    //         default:
-    //             break;
-    //     }
-    // }, [shipItems, levelFilter]);
+            default:
+                break;
+        }
+    }, [levelFilter, shipItems]);
 
     if (loading)
         return <span className="loading loading-spinner loading-lg"></span>;
     if (error) return <p>Error : {error.message}</p>;
 
-    
     console.log(data);
     return (
         <div>
@@ -57,7 +59,12 @@ export const ItemsComponent = () => {
                     Level
                 </DropDown>
             </div>
-            {shipItems && <PaginatedItems items={shipItems} itemsPerPage={3} />}
+            {shipItems && (
+                <PaginatedItems
+                    items={filteredShipItems ? filteredShipItems : shipItems}
+                    itemsPerPage={3}
+                />
+            )}
         </div>
     );
 };

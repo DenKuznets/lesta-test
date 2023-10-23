@@ -7,3 +7,11 @@ export const getLevelFilters = (ships: Ship[]) => {
     });
     return filter;
 };
+
+export const getTypeFilters = (ships: Ship[]) => {
+    const filter = new Set<string>();
+    ships.map((ship: Ship) => {
+        filter.add(ship.type.name);
+    });
+    return filter;
+};

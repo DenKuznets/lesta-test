@@ -6,3 +6,10 @@ export const filterShipsByLevel = (
 ): Ship[] => {
     return shipItems.filter((ship) => ship.level === levelFilter);
 };
+
+export const filterShipsByType = (
+    typeFilter: string,
+    shipItems: Ship[]
+): Ship[] => {
+    return shipItems.filter((ship) => ship.type.name === typeFilter);
+};

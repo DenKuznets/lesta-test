@@ -4,19 +4,26 @@ import { useQuery } from "@apollo/client";
 import { useEffect, useMemo, useState } from "react";
 import DropDown from "./DropDown";
 import { PaginatedItems } from "@/app/paginatedItems";
-import { getLevelFilters } from "@/utils/getFilters";
-import { filterShipsByLevel } from "@/utils/filterShips";
+import { getLevelFilters, getTypeFilters } from "@/utils/getFilters";
+import { filterShipsByLevel, filterShipsByType } from "@/utils/filterShips";
 
 export const ItemsComponent = () => {
     const [shipItems, setShipItems] = useState<Ship[]>();
-    const [filteredShipItems, setFilteredShipItems] = useState<Ship[]>();
+    const [currentFilter, setCurrentFilter] = useState<string | null>(null);
+    const [filteredShipItems, setFilteredShipItems] = useState<Ship[] | null>(
+        null
+    );
     const [levelFilter, setLevelFilter] = useState<string | null>(null);
-    // const [typeFilter, setTypeFilter] = useState("");
+    const [typeFilter, setTypeFilter] = useState<string | null>(null);
     // const [nationFilter, setNationFilter] = useState("");
 
     const { loading, error, data } = useQuery(getShips);
     const levelFilters = useMemo<Set<string>>(
         () => (shipItems ? getLevelFilters(shipItems) : new Set()),
+        [shipItems]
+    );
+    const typeFilters = useMemo<Set<string>>(
+        () => (shipItems ? getTypeFilters(shipItems) : new Set()),
         [shipItems]
     );
     // const typeFilters: Set<string> = new Set();
@@ -35,19 +42,25 @@ export const ItemsComponent = () => {
                 setFilteredShipItems(
                     filterShipsByLevel(levelFilter, shipItems)
                 );
-                setLevelFilter(null);
+                setCurrentFilter(levelFilter);
+                // setLevelFilter(null);
+                break;
+            case !!typeFilter && !!shipItems:
+                setFilteredShipItems(filterShipsByType(typeFilter, shipItems));
+                setCurrentFilter(typeFilter);
+                // setLevelFilter(null);
                 break;
 
             default:
                 break;
         }
-    }, [levelFilter, shipItems]);
+    }, [levelFilter, shipItems, typeFilter]);
 
     if (loading)
         return <span className="loading loading-spinner loading-lg"></span>;
     if (error) return <p>Error : {error.message}</p>;
 
-    console.log(data);
+    // console.log(data);
     return (
         <div>
             <div>
@@ -56,8 +69,29 @@ export const ItemsComponent = () => {
                     handleClick={(item) => setLevelFilter(item)}
                     items={Array.from(levelFilters)}
                 >
-                    Level
+                    {`Level${
+                        levelFilter && currentFilter ? `: ${currentFilter}` : ""
+                    }`}
                 </DropDown>
+                <DropDown
+                    handleClick={(item) => setLevelFilter(item)}
+                    items={Array.from(typeFilters)}
+                >
+                    {`Type${
+                        typeFilter && currentFilter ? `: ${currentFilter}` : ""
+                    }`}
+                </DropDown>
+                <button
+                    onClick={() => {
+                        setFilteredShipItems(null);
+                        setCurrentFilter(null);
+                        setLevelFilter(null);
+                        setTypeFilter(null);
+                    }}
+                    className="btn"
+                >
+                    reset filter
+                </button>
             </div>
             {shipItems && (
                 <PaginatedItems
